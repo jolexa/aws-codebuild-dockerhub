@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  GHSECRET:
+    Type: String
+    Default: "qwerty"
+  DeploymentBucket:
+    Type: String
+  md5:
+    Type: String
+
+Resources:
+  ListenerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main.lambda_handler
+      Runtime: python2.7
+      CodeUri:
+        Bucket: !Ref DeploymentBucket
+        Key: !Ref md5
+      Description: Accepts GitHub event and invokes Codebuild job
+      MemorySize: 128
+      Timeout: 10
+      Environment:
+        Variables:
+          GHSECRET: !Ref GHSECRET
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            Path: /
+            Method: POST
