@@ -19,15 +19,34 @@ Resources:
       CodeUri:
         Bucket: !Ref DeploymentBucket
         Key: !Ref md5
-      Description: Accepts GitHub event and invokes Codebuild job
+      Description: Accepts GitHub event and invokes CodeBuild spawner
       MemorySize: 128
       Timeout: 10
+      Policies:
+        - Statement:
+            Effect: Allow
+            Action: "lambda:InvokeFunction"
+            Resource:
+              - !GetAtt SpawnCodeBuildFunction.Arn
       Environment:
         Variables:
           GHSECRET: !Ref GHSECRET
+          SpawnCodeBuildFunctionArn: !GetAtt SpawnCodeBuildFunction.Arn
       Events:
         PostApi:
           Type: Api
           Properties:
             Path: /
             Method: POST
+
+  SpawnCodeBuildFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: spawn-codebuild.lambda_handler
+      Runtime: python2.7
+      CodeUri:
+        Bucket: !Ref DeploymentBucket
+        Key: !Ref md5
+      Description: Invokes CodeBuild Job
+      MemorySize: 128
+      Timeout: 10
