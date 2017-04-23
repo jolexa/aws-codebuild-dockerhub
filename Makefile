@@ -3,7 +3,7 @@ STACKNAME="aws-codebuild-dockerhub"
 
 deploy: upload
 	aws cloudformation deploy \
-        --template-file apigw-lambda-deployment.yml \
+        --template-file cfn-deployment.yml \
         --stack-name $(STACKNAME)-infra \
         --region us-east-2 \
         --parameter-overrides \
