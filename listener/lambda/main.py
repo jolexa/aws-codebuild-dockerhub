@@ -42,8 +42,8 @@ def lambda_handler(event, context):
 
     githookbody = json.loads(body)
     logger.debug(json.dumps(githookbody, indent=4))
-    # some sanity checking
-    if githookbody['hook']['events'][0] != "push":
+    # some sanity checking, only support pushes
+    if event['headers']['X-GitHub-Event'] != "push":
         logger.critical("hook event is not supported")
         return {
             'body': "hook event is not supported",
