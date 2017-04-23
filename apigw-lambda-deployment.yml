@@ -14,7 +14,7 @@ Resources:
   ListenerFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: main.lambda_handler
+      Handler: listener.lambda_handler
       Runtime: python2.7
       CodeUri:
         Bucket: !Ref DeploymentBucket
