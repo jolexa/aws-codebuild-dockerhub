@@ -1,5 +1,7 @@
 BUCKET="aws-codebuild-dockerhub"
 STACKNAME="aws-codebuild-dockerhub"
+ACCOUNT=$(shell aws sts get-caller-identity --query Account --output text)
+KeyIdArn=$(shell aws kms --region us-east-2 describe-key --key-id arn:aws:kms:us-east-2:$(ACCOUNT):alias/credstash --query KeyMetadata.Arn --output text)
 
 deploy: upload
 	aws cloudformation deploy \
@@ -9,6 +11,7 @@ deploy: upload
         --parameter-overrides \
         "DeploymentBucket=$(BUCKET)" \
 		"md5=$(shell md5sum lambda/*.py| md5sum | cut -d ' ' -f 1)" \
+		"KeyIdArn=$(KeyIdArn)" \
         --capabilities CAPABILITY_IAM || exit 0
 
 upload:

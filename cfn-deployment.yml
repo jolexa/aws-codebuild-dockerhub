@@ -5,6 +5,8 @@ Parameters:
   GHSECRET:
     Type: String
     Default: "qwerty"
+  KeyIdArn:
+    Type: String
   DeploymentBucket:
     Type: String
   md5:
@@ -39,6 +41,48 @@ Resources:
             Path: /
             Method: POST
 
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
+      - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Sid: 'CodeBuild'
+          Principal:
+            Service:
+            - codebuild.amazonaws.com
+          Action:
+            - sts:AssumeRole
+      Path: "/cfn/"
+      Policies:
+      - PolicyName: S3DeleteBucket
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+            - s3:DeleteObject
+            - s3:DeleteBucket
+            Resource:
+              - !Sub "arn:aws:s3:::aws-codebuild-dockerhub-${AWS::AccountId}-*"
+      - PolicyName: CredstashAccess
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+            - kms:Decrypt
+            Resource:
+              - !Ref KeyIdArn
+          - Effect: Allow
+            Action:
+            - dynamodb:Query
+            - dynamodb:GetItem
+            Resource:
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/credential-store"
+
   SpawnCodeBuildFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -47,6 +91,28 @@ Resources:
       CodeUri:
         Bucket: !Ref DeploymentBucket
         Key: !Ref md5
-      Description: Invokes CodeBuild Job
+      Description: Provisions CodeBuild Job
       MemorySize: 128
       Timeout: 10
+      Policies:
+        - Statement:
+            Effect: Allow
+            Action:
+            - s3:CreateBucket
+            - s3:PutObject
+            Resource:
+              - !Sub "arn:aws:s3:::aws-codebuild-dockerhub-${AWS::AccountId}-*"
+        - Statement:
+            Effect: Allow
+            Action:
+            - codebuild:CreateProject
+            Resource: '*'
+        - Statement:
+            Effect: Allow
+            Action:
+            - iam:PassRole
+            Resource:
+              - !GetAtt CodeBuildRole.Arn
+      Environment:
+        Variables:
+          CodeBuildRoleArn: !GetAtt CodeBuildRole.Arn
