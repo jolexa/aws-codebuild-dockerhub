@@ -3,6 +3,7 @@ import os
 import hmac
 from hashlib import sha1
 import json
+import re
 import boto3
 
 logger = logging.getLogger()
@@ -55,9 +56,11 @@ def lambda_handler(event, context):
     builds = []
     for i in githookbody['commits']:
         for a in i['added']:
-            builds.append(a.split("/")[0])
+            if re.search("/", a):
+                builds.append(a.split("/")[0])
         for m in i['modified']:
-            builds.append(m.split("/")[0])
+            if re.search("/", m):
+                builds.append(m.split("/")[0])
 
     # Spawn the CodeBuild Job
     lambdac = boto3.client('lambda')
@@ -67,12 +70,15 @@ def lambda_handler(event, context):
         'username': username,
         }
     print message_input
-    response = lambdac.invoke(
-        FunctionName=os.environ['SpawnCodeBuildFunctionArn'],
-        InvocationType='Event', # async
-        LogType='None',
-        Payload=json.dumps(message_input)
+    if builds: # False if empty
+        response = lambdac.invoke(
+            FunctionName=os.environ['SpawnCodeBuildFunctionArn'],
+            InvocationType='Event', # async
+            LogType='None',
+            Payload=json.dumps(message_input)
         )
+    else:
+        logger.info("Not spawning a codebuild job")
 
     # Everything is good
     return {
