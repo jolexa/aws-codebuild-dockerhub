@@ -11,6 +11,9 @@ Parameters:
     Type: String
   md5:
     Type: String
+  CredstashLeadingKey:
+    Type: String
+    Default: 'dockerhub-password'
 
 Resources:
   ListenerFunction:
@@ -106,6 +109,7 @@ Resources:
             Effect: Allow
             Action:
             - codebuild:CreateProject
+            - codebuild:StartBuild
             Resource: '*'
         - Statement:
             Effect: Allow
@@ -116,3 +120,4 @@ Resources:
       Environment:
         Variables:
           CodeBuildRoleArn: !GetAtt CodeBuildRole.Arn
+          CredstashLeadingKey: !Ref CredstashLeadingKey
