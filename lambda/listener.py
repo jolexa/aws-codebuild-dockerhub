@@ -50,6 +50,30 @@ def lambda_handler(event, context):
             'statusCode': 501
             }
 
+    repo_url = githookbody['repository']['url'] + ".git"
+    username = githookbody['repository']['owner']['name']
+    builds = []
+    for i in githookbody['commits']:
+        for a in i['added']:
+            builds.append(a.split("/")[0])
+        for m in i['modified']:
+            builds.append(m.split("/")[0])
+
+    # Spawn the CodeBuild Job
+    lambdac = boto3.client('lambda')
+    message_input = {
+        'repo_url': repo_url,
+        'builds': builds,
+        'username': username,
+        }
+    print message_input
+    response = lambdac.invoke(
+        FunctionName=os.environ['SpawnCodeBuildFunctionArn'],
+        InvocationType='Event', # async
+        LogType='None',
+        Payload=json.dumps(message_input)
+        )
+
     # Everything is good
     return {
         "statusCode": 200,
