@@ -53,14 +53,17 @@ def lambda_handler(event, context):
 
     repo_url = githookbody['repository']['url'] + ".git"
     username = githookbody['repository']['owner']['name']
-    builds = []
+    builds_list = []
     for i in githookbody['commits']:
         for a in i['added']:
             if re.search("/", a):
-                builds.append(a.split("/")[0])
+                builds_list.append(a.split("/")[0])
         for m in i['modified']:
             if re.search("/", m):
-                builds.append(m.split("/")[0])
+                builds_list.append(m.split("/")[0])
+    # This is slow but don't care for our list size
+    # Removes dupes to prevent spawning duplicate jobs
+    builds = sorted(set(builds_list),key=builds_list.index)
 
     # Spawn the CodeBuild Job
     lambdac = boto3.client('lambda')
