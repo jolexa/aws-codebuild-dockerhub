@@ -121,3 +121,47 @@ Resources:
         Variables:
           CodeBuildRoleArn: !GetAtt CodeBuildRole.Arn
           CredstashLeadingKey: !Ref CredstashLeadingKey
+
+  CleanCodeBuildFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: clean-old-codebuilds.lambda_handler
+      Runtime: python2.7
+      CodeUri:
+        Bucket: !Ref DeploymentBucket
+        Key: !Ref md5
+      Description: Removes old CodeBuild Jobs
+      MemorySize: 128
+      Timeout: 10
+      Events:
+        OnceWeek:
+          Type: Schedule
+          Properties:
+            Schedule: rate(7 days)
+      Policies:
+        - Statement:
+            Effect: Allow
+            Action:
+            - s3:DeleteObject
+            - s3:DeleteBucket
+            - s3:ListBucket
+            Resource:
+              - !Sub "arn:aws:s3:::aws-codebuild-dockerhub-${AWS::AccountId}-*"
+        - Statement:
+            Effect: Allow
+            Action:
+            - codebuild:ListProjects
+            - codebuild:BatchGetProjects
+            Resource: '*'
+        - Statement:
+            Effect: Allow
+            Action:
+            - codebuild:DeleteProjects
+            Resource:
+              - !Sub "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:project/aws-codebuild-dockerhub-${AWS::AccountId}-*"
+        - Statement:
+            Effect: Allow
+            Action:
+            - logs:DeleteLogGroup
+            Resource:
+              - arn:aws:logs:*:*:log-group:/aws/codebuild/*:log-stream:*
