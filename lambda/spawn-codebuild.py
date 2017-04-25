@@ -106,6 +106,10 @@ phases:
                     "key": "X-Created-Date",
                     "value": str(datetime.date.today())
                 },
+                {
+                    "key": "X-Delete-Via-Lambda-Eligible",
+                    "value": "True"
+                }
             ]
         )
         # Start the build
