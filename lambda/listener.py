@@ -51,6 +51,13 @@ def lambda_handler(event, context):
             'statusCode': 501
             }
 
+    if githookbody['repository']['private']: # bool
+        logger.info("Event Accepted but Private Repos are not supported")
+        return {
+            'body': "Event Accepted but Private Repos are not supported",
+            'statusCode': 200
+            }
+
     repo_url = githookbody['repository']['url'] + ".git"
     username = githookbody['repository']['owner']['name']
     builds_list = []
@@ -81,7 +88,7 @@ def lambda_handler(event, context):
             Payload=json.dumps(message_input)
         )
     else:
-        logger.info("Not spawning a codebuild job")
+        logger.info("Not spawning a codebuild job due to input/commit")
 
     # Everything is good
     return {
