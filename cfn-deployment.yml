@@ -156,9 +156,9 @@ Resources:
         - Statement:
             Effect: Allow
             Action:
-            - codebuild:DeleteProjects
+            - codebuild:DeleteProject
             Resource:
-              - !Sub "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:project/aws-codebuild-dockerhub-${AWS::AccountId}-*"
+              - !Sub "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:project/aws-codebuild-dockerhub-*"
         - Statement:
             Effect: Allow
             Action:
