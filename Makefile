@@ -3,7 +3,7 @@ STACKNAME="aws-codebuild-dockerhub"
 ACCOUNT=$(shell aws sts get-caller-identity --query Account --output text)
 KeyIdArn=$(shell aws kms --region us-east-2 describe-key --key-id arn:aws:kms:us-east-2:$(ACCOUNT):alias/credstash --query KeyMetadata.Arn --output text)
 
-deploy: upload
+deploy: upload website
 	aws cloudformation deploy \
         --template-file cfn-deployment.yml \
         --stack-name $(STACKNAME)-infra \
@@ -19,3 +19,12 @@ upload:
 		aws s3 cp ./deployment.zip \
 		s3://$(BUCKET)/$(shell md5sum lambda/*.py| md5sum | cut -d ' ' -f 1) && \
 		rm -f deployment.zip
+
+website:
+	cd website-infra && \
+		make STACKNAME_BASE=aws-codebuild-dockerhub-website \
+		PRIMARY_REGION=us-east-2 \
+		STANDBY_REGION=us-west-2 \
+		PRIMARY_URL=aws-codebuild-dockerhub.jolexa.us \
+		STANDBY_URL=aws-codebuild-dockerhub-standby.jolexa.us
+
