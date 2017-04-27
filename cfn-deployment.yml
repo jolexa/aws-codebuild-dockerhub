@@ -85,6 +85,14 @@ Resources:
             - dynamodb:GetItem
             Resource:
               - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/credential-store"
+      - PolicyName: InvokeLambdaNotifyFunction
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+            - lambda:InvokeFunction
+            Resource:
+              - !GetAtt NotifyFunction.Arn
 
   SpawnCodeBuildFunction:
     Type: AWS::Serverless::Function
@@ -121,6 +129,7 @@ Resources:
         Variables:
           CodeBuildRoleArn: !GetAtt CodeBuildRole.Arn
           CredstashLeadingKey: !Ref CredstashLeadingKey
+          NotifyFunctionName: !Ref NotifyFunction
 
   CleanCodeBuildFunction:
     Type: AWS::Serverless::Function
@@ -165,3 +174,33 @@ Resources:
             - logs:DeleteLogGroup
             Resource:
               - arn:aws:logs:*:*:log-group:/aws/codebuild/*:log-stream:*
+
+  NotifyFunctionSNS:
+    Type: AWS::SNS::Topic
+
+  NotifyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: notify-status-sns.lambda_handler
+      Runtime: python2.7
+      CodeUri:
+        Bucket: !Ref DeploymentBucket
+        Key: !Ref md5
+      Description: Notifies on Codebuild Status (SNS Proxy)
+      MemorySize: 128
+      Timeout: 30
+      Environment:
+        Variables:
+          NotifyFunctionSNSArn: !Ref NotifyFunctionSNS
+      Policies:
+        - Statement:
+            Effect: Allow
+            Action:
+            - sns:Publish
+            Resource:
+              - !Ref NotifyFunctionSNS
+        - Statement:
+            Effect: Allow
+            Action:
+            - codebuild:BatchGetBuilds
+            Resource: '*'
