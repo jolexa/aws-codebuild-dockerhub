@@ -100,7 +100,7 @@ phases:
                 'computeType': 'BUILD_GENERAL1_SMALL',
             },
             serviceRole=os.getenv('CodeBuildRoleArn'),
-            timeoutInMinutes=5,
+            timeoutInMinutes=20,
             tags=[
                 {
                     "key": "X-Created-S3-Bucket",
