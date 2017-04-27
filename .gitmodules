@@ -1,0 +1,3 @@
+[submodule "website-content"]
+	path = website-infra
+	url = git@github.com:jolexa/s3-staticsite-multiregion.git
