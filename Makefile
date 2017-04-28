@@ -5,7 +5,7 @@ KeyIdArn=$(shell aws kms --region us-east-2 describe-key --key-id arn:aws:kms:us
 PRIMARY_REGION="us-east-2"
 STANDBY_REGION="us-west-2"
 
-deploy: upload website
+deploy: upload
 	aws cloudformation deploy \
         --template-file cfn-deployment.yml \
         --stack-name $(STACKNAME)-infra \
@@ -14,6 +14,9 @@ deploy: upload website
         "DeploymentBucket=$(BUCKET)" \
 		"md5=$(shell md5sum lambda/*.py| md5sum | cut -d ' ' -f 1)" \
 		"KeyIdArn=$(KeyIdArn)" \
+		"CloudFrontDistro=$(shell custom-domain-infra/scripts/get_domain_name_distro.py --domain-name $(WebhookEndpoint) --region $(PRIMARY_REGION))" \
+		"WebhookEndpoint=$(WebhookEndpoint)" \
+		"WebhookEndpointZoneName=$(WebhookEndpointZoneName)" \
         --capabilities CAPABILITY_IAM || exit 0
 
 upload:
@@ -21,6 +24,22 @@ upload:
 		aws s3 cp ./deployment.zip \
 		s3://$(BUCKET)/$(shell md5sum lambda/*.py| md5sum | cut -d ' ' -f 1) && \
 		rm -f deployment.zip
+
+acm-cert:
+	# Only works in us-east-1
+	aws cloudformation deploy \
+        --template-file custom-domain-infra/acm_certs.yml \
+        --stack-name $(STACKNAME)-acm-certs \
+        --region us-east-1 \
+        --parameter-overrides "ACMUrl=$(WebhookEndpoint)" \
+        --capabilities CAPABILITY_IAM || exit 0
+
+
+customdomain: acm-cert
+	# This script is not idempotent, will exit 1 if ran twice
+	custom-domain-infra/scripts/create_domain_name.py \
+		--cert-arn $(shell aws cloudformation --region us-east-1 describe-stacks --stack-name $(STACKNAME)-acm-certs --query Stacks[0].Outputs[0].OutputValue --output text) \
+		--domain-name $(WebhookEndpoint) --region $(PRIMARY_REGION) || exit 0
 
 website-infra:
 	cd website-infra && \
