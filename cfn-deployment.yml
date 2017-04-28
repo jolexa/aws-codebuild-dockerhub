@@ -52,7 +52,16 @@ Resources:
             Path: /
             Method: POST
 
-  ListenerDNSEntry6: # IPv6 only by choice
+  ListenerDNSEntry:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName: !Ref CloudFrontDistro
+        HostedZoneId: Z2FDTNDATAQYW2 # CloudFront zone id hardcoded by design
+      HostedZoneName: !Ref WebhookEndpointZoneName
+      Name: !Ref WebhookEndpoint
+      Type: A
+  ListenerDNSEntry6: # GitHub actually doesn't support IPv6
     Type: AWS::Route53::RecordSet
     Properties:
       AliasTarget:
