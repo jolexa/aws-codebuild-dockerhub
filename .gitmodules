@@ -1,3 +1,6 @@
 [submodule "website-content"]
 	path = website-infra
 	url = git@github.com:jolexa/s3-staticsite-multiregion.git
+[submodule "custom-domain-infra"]
+	path = custom-domain-infra
+	url = git@github.com:jolexa/aws-apigw-acm.git
