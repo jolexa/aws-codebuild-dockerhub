@@ -92,6 +92,9 @@ make customdomain WebhookEndpoint="example.jolexa.us"
 make WebhookEndpoint=example.jolexa.us WebhookEndpointZoneName=jolexa.us GHSECRET=mysecret
 ```
 
+* After deploying the infrastructure, add a webhook to your GitHub repo that
+   sends a json payload to the endpoint
+
 #### Theory
 I choose to manage the API GW/Lambda/SNS infrastructure inside of CloudFormation
 because it represents the most manageable methods available as well as the least
