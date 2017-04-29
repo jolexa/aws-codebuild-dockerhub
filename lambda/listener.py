@@ -43,8 +43,14 @@ def lambda_handler(event, context):
 
     githookbody = json.loads(body)
     logger.debug(json.dumps(githookbody, indent=4))
-    # some sanity checking, only support pushes
-    if event['headers']['X-GitHub-Event'] != "push":
+    # some sanity checking, only support ping and push
+    if event['headers']['X-GitHub-Event'] == "ping":
+        logger.info("ping event, returning")
+        return {
+            'body': "pong",
+            'statusCode': 200
+            }
+    elif event['headers']['X-GitHub-Event'] != "push":
         logger.critical("hook event is not supported")
         return {
             'body': "hook event is not supported",
@@ -70,7 +76,7 @@ def lambda_handler(event, context):
                 builds_list.append(m.split("/")[0])
     # This is slow but don't care for our list size
     # Removes dupes to prevent spawning duplicate jobs
-    builds = sorted(set(builds_list),key=builds_list.index)
+    builds = sorted(set(builds_list), key=builds_list.index)
 
     # Spawn the CodeBuild Job
     lambdac = boto3.client('lambda')
