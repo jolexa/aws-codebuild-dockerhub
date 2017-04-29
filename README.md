@@ -34,7 +34,7 @@ a `Dockerfile`. The Listener will
 spawn jobs for private repos, but you could implement this if desired. The
 [Spawner function](https://github.com/jolexa/aws-codebuild-dockerhub/blob/master/lambda/spawn-codebuild.py)
 will create a CodeBuild job for the commit, run
-[`docker build -t <owner>/<directory name> .`](https://github.com/jolexa/aws-codebuild-dockerhub/blob/master/lambda/spawn-codebuild.py#L75)
+`docker build -t <owner>/<directory name> .`
 then push it to Docker Hub with credentials provided by
 [`credstash`](https://github.com/fugue/credstash) for the `<owner>`
 
@@ -42,7 +42,7 @@ then push it to Docker Hub with credentials provided by
 [**not**](https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref.html)
 put passwords in CodeBuild environment variables, then shows an
 [example](https://docs.aws.amazon.com/codebuild/latest/userguide/sample-docker.html#sample-docker-docker-hub)
-doing just that. `¯\_(ツ)_/¯` )
+doing just that. (shrug) )
 
 After the CodeBuild job is completed, the
 [SNS Notifier function](https://github.com/jolexa/aws-codebuild-dockerhub/blob/master/lambda/notify-status-sns.py)
@@ -66,14 +66,14 @@ and run `make` - this will deploy multiple cloudformation stacks.  Described
 below:
 
 1. Stack to provision one ACM cert (must be us-east-1)
-  - If you want a custom domain for the API Gateway (nicety only)
+  * If you want a custom domain for the API Gateway (nicety only)
 2. Infrastructure stack (any region that support CodeBuild)
-  - API Gateway
-  - Listener Lambda
-  - CodeBuild Spawner Lambda
-  - SNS Notifier Lambda and SNS Topic
-    - Optionally subscribe to topic, reports success/failures
-  - Cleanup Lambda (runs once per week)
+  * API Gateway
+  * Listener Lambda
+  * CodeBuild Spawner Lambda
+  * SNS Notifier Lambda and SNS Topic
+    * Optionally subscribe to topic, reports success/failures
+  * Cleanup Lambda (runs once per week)
 
 There are additional helpers in the Makefile to provision this
 [website](https://aws-codebuild-dockerhub.jolexa.us/)
