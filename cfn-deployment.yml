@@ -4,7 +4,6 @@ Transform: AWS::Serverless-2016-10-31
 Parameters:
   GHSECRET:
     Type: String
-    Default: "qwerty"
   KeyIdArn:
     Type: String
   DeploymentBucket:
@@ -16,10 +15,8 @@ Parameters:
     Default: 'dockerhub-password'
   WebhookEndpoint:
     Type: String
-    Default: 'foo.example.tld'
   WebhookEndpointZoneName:
     Type: String
-    Default: 'example.tld'
   CloudFrontDistro:
     Type: String
 

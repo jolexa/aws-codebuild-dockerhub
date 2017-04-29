@@ -1,9 +1,14 @@
-BUCKET="aws-codebuild-dockerhub"
-STACKNAME="aws-codebuild-dockerhub"
 ACCOUNT=$(shell aws sts get-caller-identity --query Account --output text)
+# These variables need to be changed
+STACKNAME="aws-codebuild-dockerhub"
 KeyIdArn=$(shell aws kms --region us-east-2 describe-key --key-id arn:aws:kms:us-east-2:$(ACCOUNT):alias/credstash --query KeyMetadata.Arn --output text)
 PRIMARY_REGION="us-east-2"
-STANDBY_REGION="us-west-2"
+BUCKET="aws-codebuild-dockerhub" # Must be in PRIMARY_REGION, for artifacts
+GHSECRET="qwerty"
+WebhookEndpoint="foo.example.tld"
+WebhookEndpointZoneName="example.tld"
+
+STANDBY_REGION="us-west-2" # Propably not used for average person
 
 deploy: upload
 	aws cloudformation deploy \
@@ -17,6 +22,7 @@ deploy: upload
 		"CloudFrontDistro=$(shell custom-domain-infra/scripts/get_domain_name_distro.py --domain-name $(WebhookEndpoint) --region $(PRIMARY_REGION))" \
 		"WebhookEndpoint=$(WebhookEndpoint)" \
 		"WebhookEndpointZoneName=$(WebhookEndpointZoneName)" \
+		"GHSECRET=$(GHSECRET)" \
         --capabilities CAPABILITY_IAM || exit 0
 
 upload:
