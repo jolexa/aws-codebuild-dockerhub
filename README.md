@@ -132,6 +132,12 @@ jobs.
   opinionated, etc.
 * For Docker Hub, losing out of the GitHub integration features, like README or
   automatic linking.
+* GitHub sends a maximum of 20 commits in a
+  [PushEvent](https://developer.github.com/v3/activity/events/types/#pushevent)
+  so some commits may get missed for large events
+* Jobs only get spawned for git push, the code only handles master and doesn't
+  attempt to checkout branches, though it could with some work since the
+  ref/branch is sent in the event
 
 ## Cost
 
