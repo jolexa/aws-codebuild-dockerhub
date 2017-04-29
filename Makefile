@@ -3,7 +3,8 @@ ACCOUNT=$(shell aws sts get-caller-identity --query Account --output text)
 STACKNAME="aws-codebuild-dockerhub"
 KeyIdArn=$(shell aws kms --region us-east-2 describe-key --key-id arn:aws:kms:us-east-2:$(ACCOUNT):alias/credstash --query KeyMetadata.Arn --output text)
 PRIMARY_REGION="us-east-2"
-BUCKET="aws-codebuild-dockerhub" # Must be in PRIMARY_REGION, for artifacts
+# Must be in PRIMARY_REGION, for artifacts
+BUCKET="aws-codebuild-dockerhub"
 GHSECRET="qwerty"
 WebhookEndpoint="foo.example.tld"
 WebhookEndpointZoneName="example.tld"
