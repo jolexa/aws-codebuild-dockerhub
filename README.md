@@ -30,7 +30,7 @@ service](https://aws.amazon.com/codebuild/).
 The [Listener function](https://github.com/jolexa/aws-codebuild-dockerhub/blob/master/lambda/listener.py)
 is opinionated on the repo structure. The repo must consist of directories with
 a `Dockerfile`. The Listener will
-[**not**](https://github.com/jolexa/aws-codebuild-dockerhub/blob/master/lambda/listener.py#L54-L59)
+[**not**](https://github.com/jolexa/aws-codebuild-dockerhub/blob/master/lambda/listener.py#L53-L58)
 spawn jobs for private repos, but you could implement this if desired. The
 [Spawner function](https://github.com/jolexa/aws-codebuild-dockerhub/blob/master/lambda/spawn-codebuild.py)
 will create a CodeBuild job for the commit, run
@@ -54,7 +54,7 @@ example.
 Once per week a CodeBuild cleanup lambda is executed that removes jobs older
 than a week. This is a compromise that I decided to implement because the
 CodeBuild job will not be ran again (therefore not cost anything), but I may
-want to see why it failed in leu of automatically cleaning up right away.
+want to see why it failed in lieu of automatically cleaning up right away.
 
 ![Architecture Diagram](diagram.png)
 
@@ -121,10 +121,11 @@ jobs.
   `r4.xlarge` for that price on the on-demand market. So, it only makes sense to
   use CodeBuild if you are to be <15% utilized/active per hour. Check my math, a
   `t2.medium` is $0.047/hour, with similar specs as a `build.general1.small` if
-  you run the CodeBuild for 9 minutes it will cost $0.045 (9 minutes *
+  you run a CodeBuild job for 9 minutes it will cost $0.045 (9 minutes *
   0.005/min). The t2.medium will cost $0.047 for 9 minutes (since the minimum is
-  one hour). This math all breaks down on the spot market, and it might make
-  sense to build-your-own pipeline for active projects.
+  one hour). 9 minutes of an hour is 15% of an hour. This math all breaks down
+  on the spot market, and it might make sense to build-your-own pipeline for
+  active projects.
   * (I hope I remain in the free tier, 100 minutes per month).
 * Super opinionated reference but hopefully easy to modify for your use case.
   The Dockerfile path is opinionated, the Docker Hub account name is
