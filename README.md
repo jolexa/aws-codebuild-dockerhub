@@ -119,9 +119,9 @@ jobs.
   use CodeBuild if you are to be <15% utilized/active per hour. Check my math, a
   `t2.medium` is $0.047/hour, with similar specs as a `build.general1.small` if
   you run the CodeBuild for 9 minutes it will cost $0.045 (9 minutes *
-  0.005/min). The t2.medium will cost $0.047 for 9 minutes. This math all breaks
-  down on the spot market, and it might make sense to build-you-own pipeline for
-  active projects.
+  0.005/min). The t2.medium will cost $0.047 for 9 minutes (since the minimum is
+  one hour). This math all breaks down on the spot market, and it might make
+  sense to build-your-own pipeline for active projects.
   * (I hope I remain in the free tier, 100 minutes per month).
 * Super opinionated reference but hopefully easy to modify for your use case.
   The Dockerfile path is opinionated, the Docker Hub account name is
