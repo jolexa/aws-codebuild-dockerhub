@@ -17,7 +17,6 @@ try:
 except:
     region = 'us-east-2'
 
-client = boto3.client('codebuild', region_name=region)
 
 def check_delete_candidate(codebuild):
     name = codebuild['name']
@@ -42,12 +41,12 @@ def check_delete_candidate(codebuild):
     return False
 
 def delete_s3_if_exists(codebuild):
-    client = boto3.client('s3')
+    s3client = boto3.s3client('s3')
     for i in codebuild['tags']:
         key, bucketname = i['key'], i['value']
         if key == "X-Created-S3-Bucket":
             try:
-                objs = client.list_objects_v2(
+                objs = s3client.list_objects_v2(
                         Bucket=bucketname
                         )
             except ClientError as e:
@@ -58,15 +57,17 @@ def delete_s3_if_exists(codebuild):
                     raise
             for i in objs['Contents']:
                 logger.info("Deleting Object: {}".format(i))
-                delete = client.delete_object(
+                delete = s3client.delete_object(
                     Bucket=bucketname,
                     Key=i
                     )
-            client.delete_bucket(Bucket=bucketname)
+            s3client.delete_bucket(Bucket=bucketname)
             logger.info("Deleted Bucket: {}".format(bucketname))
     return True
 
 def lambda_handler(event, context):
+    client = boto3.client('codebuild', region_name=region)
+
     logger.info(json.dumps(event, indent=4))
 
     # All this pagination code becuase boto3 doesn't support pagination on
@@ -80,10 +81,11 @@ def lambda_handler(event, context):
             )
         projects.append(projects_list['projects'])
         next_token = projects_list.get('nextToken')
+    # end pagination code, 'projects' is now ready to use
 
     for i in projects:
         response = client.batch_get_projects(names=[i])
-        p = response['projects'][0]
+        p = response['projects'][0] # there will only be one item in this list
         name = p['name']
         if check_delete_candidate(p):
             delete_s3_if_exists(p) # delete the orphaned s3 bucket
@@ -94,6 +96,7 @@ def lambda_handler(event, context):
             )
 
 if __name__ == '__main__':
+    # Running this from localhost with proper permissions will work as intended
     event = {}
     context = {}
     lambda_handler(event, context)
