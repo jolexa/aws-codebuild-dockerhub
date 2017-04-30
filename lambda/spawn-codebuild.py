@@ -58,7 +58,7 @@ def lambda_handler(event, context):
         buildjob = client.create_project(
             name='-'.join([
                 'aws-codebuild-dockerhub',
-                build_target,
+                build_target.replace(".","-"),
                 str(uuid.uuid4().get_hex().lower()[0:10])
                 ]),
             source={
