@@ -159,5 +159,5 @@ actual cost will vary depending on your account size, and commit frequency.
 
 ## Questions / Contact
 I will be more than happy to answer any questions on GitHub Issues and review
-Pull Requests to make this reference even better. Feel free to reach on on
+Pull Requests to make this reference even better. Feel free to reach me on
 [Twitter](https://twitter.com/jolexa) as well.
