@@ -60,41 +60,34 @@ want to see why it failed in lieu of automatically cleaning up right away.
 ![Architecture Diagram](https://raw.githubusercontent.com/jolexa/aws-codebuild-dockerhub/master/diagram.png)
 
 ## How?
-If you want to deploy this for yourself. Clone the repo, modify the top
-lines of the
-[Makefile](https://github.com/jolexa/aws-codebuild-dockerhub/blob/master/Makefile#L1-L7)
-and run `make` - this will deploy multiple cloudformation stacks.  Described
-below:
+The
+[Makefile](https://github.com/jolexa/aws-codebuild-dockerhub/blob/master/Makefile)
+will deploy two cloudformation stacks and one helper command for the custom
+domain.
 
-1. Stack to provision one ACM cert (must be us-east-1)
-  * If you want a custom domain for the API Gateway (nicety only)
-2. Infrastructure stack (any region that supports CodeBuild)
+1. [ACM certificate stack](https://github.com/jolexa/aws-apigw-acm/blob/master/acm_certs.yml) (must be `us-east-1`)
+2. [Infrastructure stack](https://github.com/jolexa/aws-codebuild-dockerhub/blob/master/cfn-deployment.yml) (any region that supports CodeBuild)
   * API Gateway
+    * BasePath Mapping for the custom domain endpoint
   * Listener Lambda
   * CodeBuild Spawner Lambda
   * SNS Notifier Lambda and SNS Topic
-    * Optionally subscribe to topic, reports success/failures
+    * [Optional] Recommended to subscribe to topic as this reports success & failures.
   * Cleanup Lambda (runs once per week)
+
+The deployment assumes the following things. There will need to be changes to
+deviate from any these.
+1. There is a hosted zone in Route53
+2. Custom Domain is desired
+3. Credstash table is in the same region as the `PRIMARY_REGION`
 
 There are additional helpers in the Makefile to provision this
 [website](https://aws-codebuild-dockerhub.jolexa.us/)
 
-#### Advanced How to Use
-For the advanced user, you will want to:
-1. Change the GitHub Secret that is used
-2. Modify the API GW custom domain.
-3. Many modifications if you choose not to use credstash
-  * credstash must be in the same region as `PRIMARY_REGION`
-
-Something like this:
-```
-make customdomain WebhookEndpoint="example.jolexa.us"
-
-make WebhookEndpoint=example.jolexa.us WebhookEndpointZoneName=jolexa.us GHSECRET=mysecret
-```
-
 * After deploying the infrastructure, add a webhook to your GitHub repo that
-   sends a json payload to the endpoint
+  sends a json payload to the endpoint. Enter the proper secret in the webhook
+  config (this is scriptable but low return on invest since it is a one-time
+  setup)
 
 #### Theory
 I choose to manage the API GW/Lambda/SNS infrastructure inside of CloudFormation
@@ -114,6 +107,7 @@ jobs.
   might be better.
 * GitHub infrastructure does **not** support IPv6 [webhooks]. I thought this
   would be a clever way to _hide_ my endpoint from bots (by obscurity).
+* The `raw` feature of GitHub takes a few minutes to update.
 * I still love **not** maintaining servers
 
 
