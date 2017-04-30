@@ -57,7 +57,7 @@ than a week. This is a compromise that I decided to implement because the
 CodeBuild job will not be ran again (therefore not cost anything), but I may
 want to see why it failed in lieu of automatically cleaning up right away.
 
-![Architecture Diagram](https://raw.githubusercontent.com/jolexa/aws-codebuild-dockerhub/blob/master/diagram.png)
+![Architecture Diagram](https://raw.githubusercontent.com/jolexa/aws-codebuild-dockerhub/master/diagram.png)
 
 ## How?
 If you want to deploy this for yourself. Clone the repo, modify the top
