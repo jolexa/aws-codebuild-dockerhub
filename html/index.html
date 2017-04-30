@@ -13,10 +13,26 @@
 
     <script src="https://unpkg.com/bootmark@latest/dist/bootmark.bundle.min.js"></script>
     <script>
-      $.fn.bootmark.options.html = {
-        theme: 'flatly',
-        toc: false
-      };
+    showdown.extension('img-responsive', function() {
+      return [{
+        type: 'output',
+        filter: function(html){
+          var $html = $('<div></div>').html(html);
+          $('img', $html).addClass('img-responsive');
+          return $html.html();
+        }
+      }];
+    });
+    $.fn.bootmark.options = {
+        html: {
+          theme: 'flatly',
+          toc: true
+        },
+        showdown: {
+          disableForced4SpacesIndentedSublists: true,
+          extensions: ['img-responsive']
+        }
+    };
     </script>
   </body>
 </html>
