@@ -7,11 +7,12 @@ PRIMARY_REGION="us-east-2"
 BUCKET="aws-codebuild-dockerhub"
 GHSECRET="qwerty"
 WebhookEndpoint="foo.example.tld"
-WebhookEndpointZoneName="example.tld"
+WebhookEndpointZoneName="example.tld."
 
-STANDBY_REGION="us-west-2" # Propably not used for average person
+# Probably not used for average deploy, only for web
+STANDBY_REGION="us-west-2"
 
-deploy: upload
+deploy: upload customdomain
 	aws cloudformation deploy \
         --template-file cfn-deployment.yml \
         --stack-name $(STACKNAME)-infra \
