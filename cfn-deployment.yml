@@ -31,7 +31,7 @@ Resources:
         Key: !Ref md5
       Description: Accepts GitHub event and invokes CodeBuild spawner
       MemorySize: 128
-      Timeout: 10
+      Timeout: 5
       Policies:
         - Statement:
             Effect: Allow
@@ -135,7 +135,7 @@ Resources:
         Key: !Ref md5
       Description: Provisions CodeBuild Job
       MemorySize: 128
-      Timeout: 10
+      Timeout: 8
       Policies:
         - Statement:
             Effect: Allow
