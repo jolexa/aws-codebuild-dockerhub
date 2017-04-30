@@ -20,11 +20,11 @@ except:
 def create_dummy_s3_input():
     client = boto3.client('s3')
     bucketname = "aws-codebuild-dockerhub-{}-{}".format(
-            boto3.client('sts').get_caller_identity().get('Account'),
-            str(uuid.uuid4().get_hex().lower()[0:10])
-            )
+        boto3.client('sts').get_caller_identity().get('Account'),
+        str(uuid.uuid4().get_hex().lower()[0:10])
+        )
     # create bucket
-    response = client.create_bucket(
+    client.create_bucket(
         Bucket=bucketname,
         CreateBucketConfiguration={
             'LocationConstraint': region
@@ -33,7 +33,7 @@ def create_dummy_s3_input():
     # create zip
     shutil.make_archive("/tmp/dummyzipfile", 'zip')
     # Upload zip
-    upload = client.put_object(
+    client.put_object(
         Body=open("/tmp/dummyzipfile.zip", 'r'),
         Bucket=bucketname,
         Key="dummyzipfile.zip"
@@ -52,13 +52,14 @@ def lambda_handler(event, context):
     client = boto3.client('codebuild')
 
     for build_target in event.get('builds'):
-
+        # Every CodeBuild job needs some repo to "build" - this is a fake build
+        # project that automatically gets removed
         bucketname, obj = create_dummy_s3_input()
 
         buildjob = client.create_project(
             name='-'.join([
                 'aws-codebuild-dockerhub',
-                build_target.replace(".","-"),
+                build_target.replace(".", "-"),
                 str(uuid.uuid4().get_hex().lower()[0:10])
                 ]),
             source={
@@ -101,6 +102,8 @@ phases:
             },
             serviceRole=os.getenv('CodeBuildRoleArn'),
             timeoutInMinutes=20,
+            # these tags are used by the cleanup lambda so it doesn't stomp on
+            # other CodeBuild jobs that may be present
             tags=[
                 {
                     "key": "X-Created-S3-Bucket",
@@ -117,11 +120,6 @@ phases:
             ]
         )
         # Start the build
-        startbuild = client.start_build(
+        client.start_build(
             projectName=buildjob['project']['name']
         )
-
-if __name__ == '__main__':
-    event = {}
-    context = {}
-    lambda_handler(event, context)
