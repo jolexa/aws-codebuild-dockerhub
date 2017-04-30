@@ -78,8 +78,8 @@ phases:
     commands:
       - aws s3 rb s3://{6} --force
       - curl -s
-        https://gist.githubusercontent.com/jolexa/b51bd83153e6244d993f211aa607f4dc/raw/3ae0a7cabbb918ba540c714610aafcc65df76844/gistfile1.txt
-        > workaround.sh && bash ./workaround.sh {7} $CODEBUILD_BUILD_ID
+        https://raw.githubusercontent.com/jolexa/aws-codebuild-dockerhub/master/invoke-sns-notify-lambda.sh
+        > invoke-sns-notify-lambda.sh && bash ./invoke-sns-notify-lambda.sh {7} $CODEBUILD_BUILD_ID
       '''.format(
           repo_url,     # 0 https://github.com/username/repo.git
           repo_path,    # 1 repo
