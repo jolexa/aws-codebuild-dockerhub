@@ -11,7 +11,7 @@ Until now, I had a GitHub repo _per_ tool/project to create a Docker image of
 the said tool. This lead to **many** repos with one or a few file(s) in it, a
 _Dockerfile_ and helpers, and not many commits after the initial creation. Yet,
 I wanted to configure an autobuild on Docker Hub so that I could reap the
-benefits of #serverless builds and automatic updating in the future, if I made a
+benefits of #serverless builds and automatic updating in the future if I made a
 change or commit. Even if I had **one** repo full of _Dockerfiles_, like [Jess
 Frazelle](https://github.com/jessfraz/dockerfiles), it would still be too much
 configuring for a non-automated solution to configure autobuilds.
@@ -54,7 +54,7 @@ example.
 
 Once per week a CodeBuild cleanup lambda is executed that removes jobs older
 than a week. This is a compromise that I decided to implement because the
-CodeBuild job will not be ran again (therefore not cost anything), but I may
+CodeBuild job will not run again (therefore not cost anything), but I may
 want to see why it failed in lieu of automatically cleaning up right away.
 
 ![Architecture Diagram](https://raw.githubusercontent.com/jolexa/aws-codebuild-dockerhub/master/diagram.png)
@@ -68,7 +68,7 @@ below:
 
 1. Stack to provision one ACM cert (must be us-east-1)
   * If you want a custom domain for the API Gateway (nicety only)
-2. Infrastructure stack (any region that support CodeBuild)
+2. Infrastructure stack (any region that supports CodeBuild)
   * API Gateway
   * Listener Lambda
   * CodeBuild Spawner Lambda
@@ -142,15 +142,15 @@ jobs.
 * It is too difficult to find documentation for any of the Docker API's,
   apparently some exist and you may want to use a project like
   [RyanTheAllmighty/Docker-Hub-API](https://github.com/RyanTheAllmighty/Docker-Hub-API)
-  to configure autobuilds programatically.
+  to configure autobuilds programmatically.
 
 ## Cost
 
 In practice, this architecture is pretty cheap, for _me_. I don't commit many updates to my [Dockerfiles repo](https://github.com/jolexa/dockerfiles)
 
-* API Gateway: Fractions of penny per commit or request.
+* API Gateway: Fractions of a penny per commit or request.
 * CodeBuild: The most expensive thing, as described above. Variable cost @ $0.005/min
-* Lambdas: Fractions of penny per commit and fraction of penny per week (for cleanup function)
+* Lambdas: Fractions of a penny per commit and fraction of a penny per week (for cleanup function)
 * SNS: Fraction of a penny for commit.
 * credstash: KMS and Dynamodb table will cost something (if you don't use credstash otherwise).
 
