@@ -4,7 +4,8 @@ https://aws-codebuild-dockerhub.jolexa.us/
 
 ## Motivation
 In a nutshell, I was tired of configuring every single [Docker Hub automated
-build](https://docs.docker.com/docker-hub/github/) myself.
+build](https://docs.docker.com/docker-hub/github/) myself and was looking for
+some solution.
 
 Until now, I had a GitHub repo _per_ tool/project to create a Docker image of
 the said tool. This lead to **many** repos with one or a few file(s) in it, a
@@ -56,7 +57,7 @@ than a week. This is a compromise that I decided to implement because the
 CodeBuild job will not be ran again (therefore not cost anything), but I may
 want to see why it failed in lieu of automatically cleaning up right away.
 
-![Architecture Diagram](diagram.png)
+![Architecture Diagram](https://raw.githubusercontent.com/jolexa/aws-codebuild-dockerhub/blob/master/diagram.png)
 
 ## How?
 If you want to deploy this for yourself. Clone the repo, modify the top
@@ -138,6 +139,10 @@ jobs.
 * Jobs only get spawned for git push, the code only handles master and doesn't
   attempt to checkout branches, though it could with some work since the
   ref/branch is sent in the event
+* It is too difficult to find documentation for any of the Docker API's,
+  apparently some exist and you may want to use a project like
+  [RyanTheAllmighty/Docker-Hub-API](https://github.com/RyanTheAllmighty/Docker-Hub-API)
+  to configure autobuilds programatically.
 
 ## Cost
 
