@@ -4,7 +4,6 @@ import hmac
 from hashlib import sha1
 import json
 import re
-import boto3
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -67,6 +66,10 @@ def lambda_handler(event, context):
     repo_url = githookbody['repository']['url'] + ".git"
     username = githookbody['repository']['owner']['name']
     builds_list = []
+
+    # https://developer.github.com/v3/activity/events/types/#pushevent
+    # Check the commits array for added or modified files, if the path contains
+    # a "/" it probably fits the opionated repo structure
     for i in githookbody['commits']:
         for a in i['added']:
             if re.search("/", a):
@@ -74,20 +77,20 @@ def lambda_handler(event, context):
         for m in i['modified']:
             if re.search("/", m):
                 builds_list.append(m.split("/")[0])
-    # This is slow but don't care for our list size
     # Removes dupes to prevent spawning duplicate jobs
-    builds = sorted(set(builds_list), key=builds_list.index)
+    builds = list(set(builds_list))
 
     # Spawn the CodeBuild Job
-    lambdac = boto3.client('lambda')
-    message_input = {
-        'repo_url': repo_url,
-        'builds': builds,
-        'username': username,
-        }
-    print message_input
     if builds: # False if empty
-        response = lambdac.invoke(
+        import boto3
+        client = boto3.client('lambda')
+        message_input = {
+            'repo_url': repo_url,
+            'builds': builds,
+            'username': username,
+            }
+        logger.debug(message_input)
+        response = client.invoke(
             FunctionName=os.environ['SpawnCodeBuildFunctionArn'],
             InvocationType='Event', # async
             LogType='None',
@@ -99,5 +102,5 @@ def lambda_handler(event, context):
     # Everything is good
     return {
         "statusCode": 200,
-        "body": "worked"
+        "body": "accepted"
     }
