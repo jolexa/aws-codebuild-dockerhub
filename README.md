@@ -14,7 +14,9 @@ I wanted to configure an autobuild on Docker Hub so that I could reap the
 benefits of #serverless builds and automatic updating in the future if I made a
 change or commit. Even if I had **one** repo full of _Dockerfiles_, like [Jess
 Frazelle](https://github.com/jessfraz/dockerfiles), it would still be too much
-configuring for a non-automated solution to configure autobuilds.
+configuring for a non-automated solution to configure autobuilds. (By the way,
+this is the first place I look to see examples of how something works in Docker,
+very appreciative!)
 
 My goal is to provide a reference implementation of a Docker Hub build
 replacement that has the following properties:
