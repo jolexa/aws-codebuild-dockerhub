@@ -172,7 +172,7 @@ Resources:
         Key: !Ref md5
       Description: Removes old CodeBuild Jobs
       MemorySize: 128
-      Timeout: 10
+      Timeout: 300
       Events:
         OnceWeek:
           Type: Schedule
