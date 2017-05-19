@@ -41,7 +41,7 @@ def check_delete_candidate(codebuild):
     return False
 
 def delete_s3_if_exists(codebuild):
-    s3client = boto3.s3client('s3')
+    s3client = boto3.client('s3')
     for i in codebuild['tags']:
         key, bucketname = i['key'], i['value']
         if key == "X-Created-S3-Bucket":
