@@ -59,7 +59,7 @@ def delete_s3_if_exists(codebuild):
                 logger.info("Deleting Object: {}".format(i))
                 delete = s3client.delete_object(
                     Bucket=bucketname,
-                    Key=i
+                    Key=i['Key']
                     )
             s3client.delete_bucket(Bucket=bucketname)
             logger.info("Deleted Bucket: {}".format(bucketname))
