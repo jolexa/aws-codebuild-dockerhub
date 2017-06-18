@@ -1,8 +1,8 @@
 ACCOUNT=$(shell aws sts get-caller-identity --query Account --output text)
 # These variables need to be changed
 STACKNAME="aws-codebuild-dockerhub"
-KeyIdArn=$(shell aws kms --region us-east-2 describe-key --key-id arn:aws:kms:us-east-2:$(ACCOUNT):alias/credstash --query KeyMetadata.Arn --output text)
 PRIMARY_REGION="us-east-2"
+SSMKeyArn=$(shell aws kms --region $(PRIMARY_REGION) describe-key --key-id alias/aws/ssm --query KeyMetadata.Arn)
 # Must be in PRIMARY_REGION, for artifacts
 BUCKET="aws-codebuild-dockerhub"
 GHSECRET="qwerty"
@@ -20,7 +20,7 @@ deploy: upload customdomain
         --parameter-overrides \
         "DeploymentBucket=$(BUCKET)" \
 		"md5=$(shell md5sum lambda/*.py| md5sum | cut -d ' ' -f 1)" \
-		"KeyIdArn=$(KeyIdArn)" \
+		"SSMKeyArn=$(SSMKeyArn)" \
 		"CloudFrontDistro=$(shell custom-domain-infra/scripts/get_domain_name_distro.py --domain-name $(WebhookEndpoint) --region $(PRIMARY_REGION))" \
 		"WebhookEndpoint=$(WebhookEndpoint)" \
 		"WebhookEndpointZoneName=$(WebhookEndpointZoneName)" \

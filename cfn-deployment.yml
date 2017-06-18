@@ -4,13 +4,13 @@ Transform: AWS::Serverless-2016-10-31
 Parameters:
   GHSECRET:
     Type: String
-  KeyIdArn:
+  SSMKeyArn:
     Type: String
   DeploymentBucket:
     Type: String
   md5:
     Type: String
-  CredstashLeadingKey:
+  SSMLeadingKey:
     Type: String
     Default: 'dockerhub-password'
   WebhookEndpoint:
@@ -109,13 +109,12 @@ Resources:
             Action:
             - kms:Decrypt
             Resource:
-              - !Ref KeyIdArn
+              - !Ref SSMKeyArn
           - Effect: Allow
             Action:
-            - dynamodb:Query
-            - dynamodb:GetItem
+            - ssm:GetParameters
             Resource:
-              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/credential-store"
+              - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${SSMLeadingKey}"
       - PolicyName: InvokeLambdaNotifyFunction
         PolicyDocument:
           Statement:
@@ -159,7 +158,7 @@ Resources:
       Environment:
         Variables:
           CodeBuildRoleArn: !GetAtt CodeBuildRole.Arn
-          CredstashLeadingKey: !Ref CredstashLeadingKey
+          SSMLeadingKey: !Ref SSMLeadingKey
           NotifyFunctionName: !Ref NotifyFunction
 
   CleanCodeBuildFunction:

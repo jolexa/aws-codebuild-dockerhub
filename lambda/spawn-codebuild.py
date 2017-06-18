@@ -71,10 +71,10 @@ phases:
   build:
     commands:
       - git clone {0}
-      - cd {1}/{2} && [ -e Dockerfile ] && curl -sL
-        https://github.com/Versent/unicreds/releases/download/v1.5.0/unicreds_1.5.0_linux_x86_64.tgz
-        | tar zx && docker build -t {3}/{2} . && docker login -u {3} -p
-        $(./unicreds -r {4} get {5}) && docker push {3}/{2} && docker logout
+      - cd {1}/{2} && [ -e Dockerfile ] &&
+        docker build -t {3}/{2} . && docker login -u {3} -p
+        $(aws ssm get-parameters --names {5} --with-decryption
+        --query Parameters[0].Value --output text) && docker push {3}/{2} && docker logout
   post_build:
     commands:
       - aws s3 rb s3://{6} --force
@@ -87,7 +87,7 @@ phases:
           build_target, # 2 directory in repo
           username,     # 3 username
           region,       # 4
-          os.getenv('CredstashLeadingKey'),
+          os.getenv('SSMLeadingKey'),
           bucketname,   # 6
           os.getenv('NotifyFunctionName')    # 7
           ),
