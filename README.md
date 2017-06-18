@@ -39,13 +39,7 @@ spawn jobs for private repos, but you could implement this if desired. The
 will create a CodeBuild job for the commit, run
 `docker build -t <owner>/<directory name> .`
 then push it to Docker Hub with credentials provided by
-[`credstash`](https://github.com/fugue/credstash) for the `<owner>`
-
-(Aside, I found it comical that AWS suggests to
-[**not**](https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref.html)
-put passwords in CodeBuild environment variables, then shows an
-[example](https://docs.aws.amazon.com/codebuild/latest/userguide/sample-docker.html#sample-docker-docker-hub)
-doing just that. (shrug) )
+[`EC2 SSM Parameter Store`](https://aws.amazon.com/ec2/systems-manager/parameter-store/) for the `<owner>`
 
 After the CodeBuild job is completed, the
 [SNS Notifier function](https://github.com/jolexa/aws-codebuild-dockerhub/blob/master/lambda/notify-status-sns.py)
@@ -81,7 +75,7 @@ The deployment assumes the following things. There will need to be changes to
 deviate from any these.
 1. There is a hosted zone in Route53
 2. Custom Domain is desired
-3. Credstash table is in the same region as the `PRIMARY_REGION`
+3. Password saved in EC2 SSM Parameter Store is in the same region as the `PRIMARY_REGION`
 
 There are additional helpers in the Makefile to provision this
 [website](https://aws-codebuild-dockerhub.jolexa.us/)
@@ -148,7 +142,7 @@ In practice, this architecture is pretty cheap, for _me_. I don't commit many up
 * CodeBuild: The most expensive thing, as described above. Variable cost @ $0.005/min
 * Lambdas: Fractions of a penny per commit and fraction of a penny per week (for cleanup function)
 * SNS: Fraction of a penny for commit.
-* credstash: KMS and Dynamodb table will cost something (if you don't use credstash otherwise).
+* KMS: Number of KMS decryptions will cost a fraction of penny
 
 Most of these pennies will be within the perpetual free tier as well so the
 actual cost will vary depending on your account size, and commit frequency.
